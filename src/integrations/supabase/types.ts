@@ -49,6 +49,48 @@ export type Database = {
           },
         ]
       }
+      pose_sessions: {
+        Row: {
+          accuracy_score: number | null
+          completed_at: string
+          id: string
+          points_earned: number
+          pose_id: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_score?: number | null
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          pose_id: string
+          user_id: string
+        }
+        Update: {
+          accuracy_score?: number | null
+          completed_at?: string
+          id?: string
+          points_earned?: number
+          pose_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pose_sessions_pose_id_fkey"
+            columns: ["pose_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_poses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pose_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -104,6 +146,77 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_points: {
+        Row: {
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      yoga_poses: {
+        Row: {
+          benefits: string | null
+          created_at: string
+          description: string
+          difficulty: string
+          duration_seconds: number
+          id: string
+          image_url: string | null
+          mood_tags: string[]
+          name: string
+          sanskrit_name: string | null
+          video_url: string | null
+        }
+        Insert: {
+          benefits?: string | null
+          created_at?: string
+          description: string
+          difficulty: string
+          duration_seconds?: number
+          id?: string
+          image_url?: string | null
+          mood_tags?: string[]
+          name: string
+          sanskrit_name?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          benefits?: string | null
+          created_at?: string
+          description?: string
+          difficulty?: string
+          duration_seconds?: number
+          id?: string
+          image_url?: string | null
+          mood_tags?: string[]
+          name?: string
+          sanskrit_name?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
