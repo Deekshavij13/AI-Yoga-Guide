@@ -262,27 +262,21 @@ export default function YogaSession() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Pose Info Card */}
-          <Card className="lg:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{currentPose.name}</span>
-                <Badge variant={currentPose.difficulty === "beginner" ? "secondary" : currentPose.difficulty === "intermediate" ? "default" : "destructive"}>
-                  {currentPose.difficulty}
-                </Badge>
-              </CardTitle>
-              <p className="text-sm text-muted-foreground italic">{currentPose.sanskrit_name}</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {currentPose.image_url && (
-                <img
-                  src={currentPose.image_url}
-                  alt={currentPose.name}
-                  className="w-full rounded-lg aspect-video object-cover"
-                />
-              )}
-
+        {/* Pose Info Card */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl">{currentPose.name}</CardTitle>
+                <p className="text-muted-foreground italic mt-1">{currentPose.sanskrit_name}</p>
+              </div>
+              <Badge variant={currentPose.difficulty === "beginner" ? "secondary" : currentPose.difficulty === "intermediate" ? "default" : "destructive"}>
+                {currentPose.difficulty}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <h3 className="font-semibold mb-2 flex items-center gap-2">
                   <Star className="w-4 h-4" />
@@ -290,71 +284,125 @@ export default function YogaSession() {
                 </h3>
                 <p className="text-sm text-muted-foreground">{currentPose.description}</p>
               </div>
-
               <div>
                 <h3 className="font-semibold mb-2">Benefits</h3>
                 <p className="text-sm text-muted-foreground">{currentPose.benefits}</p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="bg-secondary/20 p-4 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold flex items-center gap-2">
-                    <Timer className="w-4 h-4" />
-                    Duration
-                  </span>
-                  <span className="text-2xl font-bold text-primary">
-                    {isSessionActive ? `${timer}s / ${currentPose.duration_seconds}s` : `${currentPose.duration_seconds}s`}
-                  </span>
-                </div>
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-primary h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(timer / currentPose.duration_seconds) * 100}%` }}
+        {/* Split View: Reference Pose and User Camera */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Reference Pose Image */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Reference Pose</CardTitle>
+              <p className="text-sm text-muted-foreground text-center">Match this position</p>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="aspect-[3/4] bg-secondary/20 rounded-lg overflow-hidden relative border-4 border-primary/30">
+                {currentPose.video_url ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={currentPose.video_url.includes('youtube') 
+                      ? `https://www.youtube.com/embed/${currentPose.video_url.split('v=')[1] || currentPose.video_url.split('/').pop()}?autoplay=1&loop=1&mute=1`
+                      : currentPose.video_url}
+                    title={currentPose.name}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
                   />
+                ) : currentPose.image_url ? (
+                  <img
+                    src={currentPose.image_url}
+                    alt={currentPose.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-muted-foreground">No reference image available</p>
+                  </div>
+                )}
+                <div className="absolute top-4 left-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
+                  Target Pose
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Video Feed */}
-          <Card className="lg:col-span-2">
+          {/* User Camera Feed */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Your Practice</CardTitle>
+              <p className="text-sm text-muted-foreground text-center">
+                {isDetecting ? "AI is analyzing your pose..." : "Start practice to begin"}
+              </p>
+            </CardHeader>
             <CardContent className="p-4">
-              <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
-                {currentPose.video_url ? (
-                  <video
-                    src={currentPose.video_url}
-                    controls
-                    loop
-                    className="w-full h-full object-contain"
-                  />
-                ) : (
-                  <>
-                    <video
-                      ref={videoRef}
-                      className="hidden"
-                      playsInline
-                    />
-                    <canvas
-                      ref={canvasRef}
-                      width={1280}
-                      height={720}
-                      className="w-full h-full object-contain"
-                    />
-                    {!isInitialized && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <p className="text-white text-lg">Initializing AI model...</p>
-                      </div>
-                    )}
-                  </>
+              <div className="aspect-[3/4] bg-black rounded-lg overflow-hidden relative border-4 border-secondary/30">
+                <video
+                  ref={videoRef}
+                  className="hidden"
+                  playsInline
+                />
+                <canvas
+                  ref={canvasRef}
+                  width={1280}
+                  height={720}
+                  className="w-full h-full object-contain"
+                />
+                {!isInitialized && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+                      <p className="text-white text-lg">Initializing AI model...</p>
+                    </div>
+                  </div>
+                )}
+                
+                {!isDetecting && isInitialized && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                    <div className="text-center text-white">
+                      <p className="text-xl mb-2">Ready to start?</p>
+                      <p className="text-sm opacity-80">Click "Start Practice" below</p>
+                    </div>
+                  </div>
                 )}
                 
                 {isDetecting && (
-                  <div className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm px-6 py-3 rounded-lg border-2 border-primary/20">
-                    <div className="text-xs font-semibold text-muted-foreground">Pose Accuracy</div>
-                    <div className={`text-3xl font-bold ${poseAccuracy > 0.7 ? "text-green-500" : "text-red-500"}`}>
-                      {Math.round(poseAccuracy * 100)}%
+                  <>
+                    <div className="absolute top-4 right-4 bg-background/95 backdrop-blur-sm px-4 py-3 rounded-lg border-2 border-primary/30 shadow-lg">
+                      <div className="text-xs font-semibold text-muted-foreground mb-1">Accuracy</div>
+                      <div className="flex items-center gap-2">
+                        <div className={`text-3xl font-bold ${poseAccuracy > 0.8 ? "text-green-500" : poseAccuracy > 0.6 ? "text-yellow-500" : "text-red-500"}`}>
+                          {Math.round(poseAccuracy * 100)}%
+                        </div>
+                        {poseAccuracy > 0.8 && <span className="text-green-500">✓</span>}
+                        {poseAccuracy < 0.6 && <span className="text-red-500">!</span>}
+                      </div>
                     </div>
-                  </div>
+                    
+                    <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-primary/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Timer className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-semibold">Time</span>
+                        </div>
+                        <span className="text-lg font-bold text-primary">
+                          {timer}s / {currentPose.duration_seconds}s
+                        </span>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-2 mt-2">
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${(timer / currentPose.duration_seconds) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -363,7 +411,7 @@ export default function YogaSession() {
                   onClick={isDetecting ? stopDetection : startDetection}
                   className="w-full h-12 text-lg"
                   variant={isDetecting ? "destructive" : "default"}
-                  disabled={!isInitialized && !currentPose.video_url}
+                  disabled={!isInitialized}
                 >
                   {isDetecting ? "Pause Practice" : "Start Practice"}
                 </Button>
@@ -387,6 +435,37 @@ export default function YogaSession() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Instructions Card */}
+        {isDetecting && (
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    poseAccuracy > 0.8 ? "bg-green-500/20 text-green-500" : 
+                    poseAccuracy > 0.6 ? "bg-yellow-500/20 text-yellow-500" : 
+                    "bg-red-500/20 text-red-500"
+                  }`}>
+                    {poseAccuracy > 0.8 ? "😊" : poseAccuracy > 0.6 ? "🤔" : "😅"}
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold mb-1">
+                    {poseAccuracy > 0.8 ? "Excellent! Hold this position" : 
+                     poseAccuracy > 0.6 ? "Good! Minor adjustments needed" : 
+                     "Keep trying! Compare with reference"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {poseAccuracy > 0.8 ? "You're matching the pose perfectly. Maintain this position until the timer completes." : 
+                     poseAccuracy > 0.6 ? "Your pose is close! Look at the reference image and make small adjustments." : 
+                     "Position yourself to match the reference pose. Focus on alignment and posture."}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
