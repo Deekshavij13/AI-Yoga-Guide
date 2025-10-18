@@ -9,7 +9,10 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import YogaSession from "./pages/YogaSession";
 import MoodTest from "./pages/MoodTest";
+import MiniGames from "./pages/MiniGames";
+import PoseFacts from "./pages/PoseFacts";
 import NotFound from "./pages/NotFound";
+import WaterReminder from "@/components/WaterReminder";
 
 const queryClient = new QueryClient();
 
@@ -26,9 +29,12 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/mood-test" element={<MoodTest />} />
             <Route path="/session" element={<YogaSession />} />
+            <Route path="/mini-games" element={<MiniGames />} />
+            <Route path="/pose-facts/:poseId" element={<PoseFacts />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <WaterReminder />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

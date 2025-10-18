@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
@@ -18,13 +20,72 @@ const moodOptions = [
 
 export default function MoodTest() {
   const [selectedMood, setSelectedMood] = useState("");
+  const [showAllPoses, setShowAllPoses] = useState(false);
+  const [allPoses, setAllPoses] = useState<any[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchAllPoses();
+  }, []);
+
+  const fetchAllPoses = async () => {
+    const { data, error } = await supabase
+      .from("yoga_poses")
+      .select("*")
+      .order("name");
+
+    if (data) {
+      setAllPoses(data);
+    }
+  };
 
   const handleStart = () => {
     if (selectedMood) {
       navigate(`/session?mood=${selectedMood}`);
     }
   };
+
+  if (showAllPoses) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">All Yoga Poses</h1>
+            <Button variant="outline" onClick={() => setShowAllPoses(false)}>
+              Back to Mood Test
+            </Button>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {allPoses.map((pose) => (
+              <Card 
+                key={pose.id} 
+                className="cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => navigate(`/pose-facts/${pose.id}`)}
+              >
+                <CardHeader>
+                  <CardTitle className="text-lg">{pose.name}</CardTitle>
+                  <CardDescription>{pose.sanskrit_name}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {pose.image_url && (
+                    <img
+                      src={pose.image_url}
+                      alt={pose.name}
+                      className="w-full h-32 object-cover rounded-md mb-3"
+                    />
+                  )}
+                  <Badge variant="secondary">{pose.difficulty}</Badge>
+                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                    {pose.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-8">
@@ -59,6 +120,25 @@ export default function MoodTest() {
               className="w-full h-12 text-lg"
             >
               Start Your Session
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowAllPoses(true)}
+              className="w-full h-12 text-lg"
+            >
+              Browse All Poses
             </Button>
           </CardContent>
         </Card>

@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Flame, LogOut, Trophy, TrendingUp } from "lucide-react";
+import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen } from "lucide-react";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -151,7 +151,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Start New Session</CardTitle>
@@ -172,30 +172,74 @@ export default function Dashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Recent Sessions</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Gamepad2 className="h-5 w-5" />
+                Mini Games
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              {recentSessions.length > 0 ? (
-                <div className="space-y-3">
-                  {recentSessions.map((session) => (
-                    <div key={session.id} className="flex items-center justify-between p-3 bg-secondary/20 rounded-lg">
-                      <div>
-                        <div className="font-semibold text-sm">{session.yoga_poses.name}</div>
-                        <div className="text-xs text-muted-foreground">{session.yoga_poses.sanskrit_name}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm font-bold text-primary">+{session.points_earned}</div>
-                        <div className="text-xs text-muted-foreground">{Math.round(session.accuracy_score * 100)}%</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-sm">No sessions yet. Start your first one!</p>
-              )}
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Learn yoga through fun interactive games
+              </p>
+              <Button
+                onClick={() => navigate("/mini-games")}
+                className="w-full"
+                size="lg"
+                variant="outline"
+              >
+                Play Games
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Explore Poses
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Discover benefits and watch video guides
+              </p>
+              <Button
+                onClick={() => navigate("/mood-test")}
+                className="w-full"
+                size="lg"
+                variant="outline"
+              >
+                Browse Poses
+              </Button>
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Sessions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recentSessions.length > 0 ? (
+              <div className="grid md:grid-cols-2 gap-3">
+                {recentSessions.map((session) => (
+                  <div key={session.id} className="flex items-center justify-between p-3 bg-secondary/20 rounded-lg">
+                    <div>
+                      <div className="font-semibold text-sm">{session.yoga_poses.name}</div>
+                      <div className="text-xs text-muted-foreground">{session.yoga_poses.sanskrit_name}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-bold text-primary">+{session.points_earned}</div>
+                      <div className="text-xs text-muted-foreground">{Math.round(session.accuracy_score * 100)}%</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm">No sessions yet. Start your first one!</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Heart, Brain, Zap, ArrowLeft } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface YogaPose {
   id: string;
@@ -54,12 +53,12 @@ export default function PoseFacts() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4">
-        <div className="container mx-auto max-w-4xl">
-          <Skeleton className="h-12 w-64 mb-8" />
-          <Skeleton className="h-96 w-full mb-4" />
-          <Skeleton className="h-32 w-full" />
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4 flex items-center justify-center">
+        <Card>
+          <CardContent className="pt-6">
+            <p>Loading pose details...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
