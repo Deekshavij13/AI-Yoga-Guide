@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Camera, Flame, Activity, Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 import yogaHero from '@/assets/yoga-hero.jpg';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--gradient-subtle)' }}>
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="container mx-auto px-6 py-20 lg:py-32">

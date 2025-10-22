@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Heart, Brain, Zap, ArrowLeft } from "lucide-react";
+import PoseFunFacts from "@/components/PoseFunFacts";
 
 interface YogaPose {
   id: string;
@@ -168,6 +169,8 @@ export default function PoseFacts() {
                   </div>
                 </div>
               )}
+
+              <PoseFunFacts poseName={pose.name} />
 
               <div className="pt-4">
                 <Button

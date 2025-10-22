@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import FactOfTheDay from "@/components/FactOfTheDay";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -91,11 +93,16 @@ export default function Dashboard() {
             </h1>
             <p className="text-muted-foreground mt-1">Welcome back to your practice</p>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex gap-2">
+            <ThemeToggle />
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
+
+        <FactOfTheDay />
 
         <div className="grid md:grid-cols-4 gap-6">
           <Card>
