@@ -266,7 +266,7 @@ export default function YogaSession() {
 
   if (!currentPose) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Card className="p-8">
           <div className="text-center">Loading your personalized session...</div>
         </Card>
@@ -275,7 +275,7 @@ export default function YogaSession() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header with Points */}
         <div className="flex items-center justify-between">

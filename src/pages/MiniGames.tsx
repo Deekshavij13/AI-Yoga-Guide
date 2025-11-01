@@ -100,7 +100,7 @@ export default function MiniGames() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4">
+    <div className="min-h-screen p-4">
       <div className="container mx-auto max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>

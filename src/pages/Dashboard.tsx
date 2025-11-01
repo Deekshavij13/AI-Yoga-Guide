@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen, Apple } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import FactOfTheDay from "@/components/FactOfTheDay";
 
 export default function Dashboard() {
@@ -84,7 +85,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -94,6 +95,7 @@ export default function Dashboard() {
             <p className="text-muted-foreground mt-1">Welcome back to your practice</p>
           </div>
           <div className="flex gap-2">
+            <ThemeSelector />
             <ThemeToggle />
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />

@@ -54,7 +54,7 @@ export default function PoseFacts() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4 flex items-center justify-center">
+      <div className="min-h-screen p-4 flex items-center justify-center">
         <Card>
           <CardContent className="pt-6">
             <p>Loading pose details...</p>
@@ -82,7 +82,7 @@ export default function PoseFacts() {
   const benefitsList = pose.benefits?.split(".").filter(b => b.trim()) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4">
+    <div className="min-h-screen p-4">
       <div className="container mx-auto max-w-4xl">
         <Button variant="outline" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="h-4 w-4 mr-2" />

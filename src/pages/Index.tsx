@@ -6,6 +6,7 @@ import { Camera, Flame, Activity, Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 import yogaHero from '@/assets/yoga-hero.jpg';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeSelector } from '@/components/ThemeSelector';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,8 +19,9 @@ const Index = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--gradient-subtle)' }}>
-      <div className="fixed top-4 right-4 z-50">
+    <div className="min-h-screen">
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <ThemeSelector />
         <ThemeToggle />
       </div>
       {/* Hero Section */}

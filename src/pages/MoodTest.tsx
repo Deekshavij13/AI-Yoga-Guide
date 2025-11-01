@@ -47,7 +47,7 @@ export default function MoodTest() {
 
   if (showAllPoses) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">All Yoga Poses</h1>
@@ -88,7 +88,7 @@ export default function MoodTest() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-8">
+    <div className="min-h-screen p-8">
       <div className="max-w-2xl mx-auto">
         <Card className="backdrop-blur-sm bg-background/95">
           <CardHeader className="text-center">
