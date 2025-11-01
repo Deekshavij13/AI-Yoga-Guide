@@ -36,6 +36,9 @@ export default function YogaSession() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const animationFrameRef = useRef<number>();
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isIdle, setIsIdle] = useState(false);
+  const [lastMovementTime, setLastMovementTime] = useState(Date.now());
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -100,7 +103,7 @@ export default function YogaSession() {
     };
   }, [isSessionActive, currentPose]);
 
-  const playBeep = () => {
+  const playBeep = (isError = false) => {
     if (!audioContextRef.current) return;
     
     const oscillator = audioContextRef.current.createOscillator();
@@ -109,14 +112,31 @@ export default function YogaSession() {
     oscillator.connect(gainNode);
     gainNode.connect(audioContextRef.current.destination);
     
-    oscillator.frequency.value = 800;
-    oscillator.type = "sine";
+    // Different frequencies for different alerts
+    oscillator.frequency.value = isError ? 400 : 800; // Lower frequency for errors
+    oscillator.type = "square"; // More noticeable sound
     
-    gainNode.gain.setValueAtTime(0.3, audioContextRef.current.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(0.4, audioContextRef.current.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current.currentTime + 0.3);
     
     oscillator.start();
-    oscillator.stop(audioContextRef.current.currentTime + 0.5);
+    oscillator.stop(audioContextRef.current.currentTime + 0.3);
+    
+    // Play double beep for errors
+    if (isError) {
+      setTimeout(() => {
+        const osc2 = audioContextRef.current!.createOscillator();
+        const gain2 = audioContextRef.current!.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioContextRef.current!.destination);
+        osc2.frequency.value = 400;
+        osc2.type = "square";
+        gain2.gain.setValueAtTime(0.4, audioContextRef.current!.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioContextRef.current!.currentTime + 0.3);
+        osc2.start();
+        osc2.stop(audioContextRef.current!.currentTime + 0.3);
+      }, 200);
+    }
   };
 
   const handlePoseComplete = async () => {
@@ -179,9 +199,23 @@ export default function YogaSession() {
       const analysis = analyzePose(landmarks);
       const accuracy = Math.random() * 0.3 + 0.6; // Simulated accuracy
       setPoseAccuracy(accuracy);
+      
+      // Reset idle state if pose detected
+      setLastMovementTime(Date.now());
+      setIsIdle(false);
 
-      if (accuracy < 0.7) {
-        playBeep();
+      // Play alert sound for incorrect pose
+      if (accuracy < 0.6) {
+        playBeep(true); // Double beep for wrong pose
+      } else if (accuracy < 0.75) {
+        playBeep(false); // Single beep for improvement needed
+      }
+    } else {
+      // No landmarks detected - user might be idle
+      const timeSinceMovement = Date.now() - lastMovementTime;
+      if (timeSinceMovement > 3000 && !isIdle) { // 3 seconds of no movement
+        setIsIdle(true);
+        playBeep(true); // Alert for being idle
       }
     }
 
@@ -194,6 +228,8 @@ export default function YogaSession() {
     setIsDetecting(true);
     setIsSessionActive(true);
     setTimer(0);
+    setLastMovementTime(Date.now());
+    setIsIdle(false);
 
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { width: 1280, height: 720 },
@@ -381,8 +417,13 @@ export default function YogaSession() {
                           {Math.round(poseAccuracy * 100)}%
                         </div>
                         {poseAccuracy > 0.8 && <span className="text-green-500">✓</span>}
-                        {poseAccuracy < 0.6 && <span className="text-red-500">!</span>}
+                        {poseAccuracy < 0.6 && <span className="text-red-500 animate-pulse">!</span>}
                       </div>
+                      {isIdle && (
+                        <div className="text-xs text-red-500 font-semibold mt-1 animate-pulse">
+                          Move into position!
+                        </div>
+                      )}
                     </div>
                     
                     <div className="absolute bottom-4 left-4 right-4 bg-background/95 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-primary/30">
@@ -452,7 +493,8 @@ export default function YogaSession() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">
-                    {poseAccuracy > 0.8 ? "Excellent! Hold this position" : 
+                    {isIdle ? "⚠️ No movement detected!" :
+                     poseAccuracy > 0.8 ? "Excellent! Hold this position" : 
                      poseAccuracy > 0.6 ? "Good! Minor adjustments needed" : 
                      "Keep trying! Compare with reference"}
                   </h3>

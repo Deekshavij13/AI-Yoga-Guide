@@ -15,7 +15,6 @@ import PoseFacts from "./pages/PoseFacts";
 import DietPlannerPage from "./pages/DietPlanner";
 import NotFound from "./pages/NotFound";
 import WaterReminder from "@/components/WaterReminder";
-import BackgroundMusic from "@/components/BackgroundMusic";
 import YogaChatbot from "@/components/YogaChatbot";
 
 const queryClient = new QueryClient();
@@ -41,7 +40,6 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             <WaterReminder />
-            <BackgroundMusic />
             <YogaChatbot />
           </AuthProvider>
         </BrowserRouter>
