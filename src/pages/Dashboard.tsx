@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen } from "lucide-react";
+import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen, Apple } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import FactOfTheDay from "@/components/FactOfTheDay";
 
@@ -158,7 +158,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Start New Session</CardTitle>
@@ -217,6 +217,28 @@ export default function Dashboard() {
                 variant="outline"
               >
                 Browse Poses
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Apple className="h-5 w-5" />
+                Diet Planner
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Get AI-powered personalized diet plans
+              </p>
+              <Button
+                onClick={() => navigate("/diet-planner")}
+                className="w-full"
+                size="lg"
+                variant="outline"
+              >
+                Create Plan
               </Button>
             </CardContent>
           </Card>

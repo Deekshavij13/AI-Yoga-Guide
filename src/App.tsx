@@ -12,6 +12,7 @@ import YogaSession from "./pages/YogaSession";
 import MoodTest from "./pages/MoodTest";
 import MiniGames from "./pages/MiniGames";
 import PoseFacts from "./pages/PoseFacts";
+import DietPlannerPage from "./pages/DietPlanner";
 import NotFound from "./pages/NotFound";
 import WaterReminder from "@/components/WaterReminder";
 import BackgroundMusic from "@/components/BackgroundMusic";
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/session" element={<YogaSession />} />
               <Route path="/mini-games" element={<MiniGames />} />
               <Route path="/pose-facts/:poseId" element={<PoseFacts />} />
+              <Route path="/diet-planner" element={<DietPlannerPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
