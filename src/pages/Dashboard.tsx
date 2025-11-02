@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen, Apple } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
-import FactOfTheDay from "@/components/FactOfTheDay";
+import { FactOfTheDay } from "@/components/FactOfTheDay";
+import { PoseFunFacts } from "@/components/PoseFunFacts";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -104,7 +105,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <FactOfTheDay />
+        <div className="grid md:grid-cols-2 gap-6">
+          <FactOfTheDay />
+          <PoseFunFacts />
+        </div>
 
         <div className="grid md:grid-cols-4 gap-6">
           <Card>

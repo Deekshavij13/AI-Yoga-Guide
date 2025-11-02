@@ -36,40 +36,75 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       speedY: number;
       color: string;
       life: number;
+      rotation: number;
+      rotationSpeed: number;
 
-      constructor(x: number, y: number, color: string, isComet = false) {
+      constructor(x: number, y: number, color: string, isComet = false, isDandelion = false) {
         this.x = x;
         this.y = y;
-        this.size = isComet ? Math.random() * 3 + 2 : Math.random() * 2 + 1;
-        this.speedX = isComet ? Math.random() * 4 + 2 : (Math.random() - 0.5) * 0.5;
-        this.speedY = isComet ? Math.random() * 2 + 1 : (Math.random() - 0.5) * 0.5;
+        this.size = isDandelion ? Math.random() * 8 + 6 : (isComet ? Math.random() * 3 + 2 : Math.random() * 2 + 1);
+        this.speedX = isDandelion ? (Math.random() - 0.5) * 1.5 : (isComet ? Math.random() * 4 + 2 : (Math.random() - 0.5) * 0.5);
+        this.speedY = isDandelion ? Math.random() * 0.5 + 0.3 : (isComet ? Math.random() * 2 + 1 : (Math.random() - 0.5) * 0.5);
         this.color = color;
         this.life = 1;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.05;
       }
 
       update() {
         this.x += this.speedX;
         this.y += this.speedY;
         this.life -= 0.001;
+        this.rotation += this.rotationSpeed;
       }
 
-      draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.color;
+      draw(ctx: CanvasRenderingContext2D, isDandelion = false) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
         ctx.globalAlpha = this.life;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
+        
+        if (isDandelion) {
+          // Draw dandelion seed
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size * 0.3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Draw dandelion fluff
+          for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 * i) / 8;
+            const x = Math.cos(angle) * this.size;
+            const y = Math.sin(angle) * this.size;
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x, y, this.size * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        
         ctx.globalAlpha = 1;
+        ctx.restore();
       }
     }
 
     const createParticles = () => {
       particles = [];
-      const particleCount = theme === "moonlight" ? 200 : 100;
+      const particleCount = theme === "moonlight" ? 200 : (theme === "default" ? 50 : 100);
       
       for (let i = 0; i < particleCount; i++) {
         const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
+        const y = theme === "default" ? -50 : Math.random() * canvas.height;
         let color = "#ffffff";
         
         if (theme === "aurora") {
@@ -79,10 +114,10 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         } else if (theme === "moonlight") {
           color = `hsl(${200 + Math.random() * 40}, 70%, ${70 + Math.random() * 30}%)`;
         } else {
-          color = `hsl(${280 + Math.random() * 40}, 70%, ${70 + Math.random() * 20}%)`;
+          color = `hsl(${300 + Math.random() * 30}, 60%, ${85 + Math.random() * 10}%)`;
         }
         
-        particles.push(new Particle(x, y, color));
+        particles.push(new Particle(x, y, color, false, theme === "default"));
       }
 
       // Add comet for moonlight theme
@@ -141,7 +176,7 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       // Update and draw particles
       particles = particles.filter((particle) => {
         particle.update();
-        particle.draw(ctx);
+        particle.draw(ctx, theme === "default");
         return particle.life > 0 && 
                particle.x > -50 && 
                particle.x < canvas.width + 50 &&
@@ -150,9 +185,10 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
       });
 
       // Add new particles occasionally
-      if (particles.length < (theme === "moonlight" ? 200 : 100) && Math.random() > 0.95) {
+      const maxParticles = theme === "moonlight" ? 200 : (theme === "default" ? 50 : 100);
+      if (particles.length < maxParticles && Math.random() > 0.95) {
         const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
+        const y = theme === "default" ? -50 : Math.random() * canvas.height;
         let color = "#ffffff";
         
         if (theme === "aurora") {
@@ -162,10 +198,10 @@ export default function AnimatedBackground({ theme }: AnimatedBackgroundProps) {
         } else if (theme === "moonlight") {
           color = `hsl(${200 + Math.random() * 40}, 70%, ${70 + Math.random() * 30}%)`;
         } else {
-          color = `hsl(${280 + Math.random() * 40}, 70%, ${70 + Math.random() * 20}%)`;
+          color = `hsl(${300 + Math.random() * 30}, 60%, ${85 + Math.random() * 10}%)`;
         }
         
-        particles.push(new Particle(x, y, color));
+        particles.push(new Particle(x, y, color, false, theme === "default"));
       }
 
       animationRef.current = requestAnimationFrame(animate);

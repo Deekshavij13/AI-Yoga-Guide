@@ -1,72 +1,85 @@
-import { Lightbulb } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Lightbulb, Star } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-interface PoseFunFactsProps {
-  poseName: string;
-}
+const facts = [
+  {
+    title: "Perfect Your Warrior Pose",
+    description: "Keep your front knee directly over your ankle to protect your joints and maximize strength building.",
+  },
+  {
+    title: "Breathing Technique",
+    description: "Inhale during expansive movements and exhale during contracting movements for optimal energy flow.",
+  },
+  {
+    title: "Morning vs Evening Practice",
+    description: "Morning yoga boosts energy and flexibility, while evening practice promotes better sleep and relaxation.",
+  },
+  {
+    title: "Alignment Tip",
+    description: "In downward dog, spread your fingers wide and press through your palms to protect your wrists.",
+  },
+];
 
-const funFactsDatabase: Record<string, string[]> = {
-  "Tree Pose": [
-    "In India, the tree is a symbol of wisdom and longevity",
-    "This pose improves focus and concentration within 30 seconds",
-    "Tree Pose activates the same brain regions as meditation"
-  ],
-  "Warrior Pose": [
-    "Named after Virabhadra, a fierce warrior in Hindu mythology",
-    "Warriors in ancient times practiced this pose before battle",
-    "This pose can increase stamina by 25% with regular practice"
-  ],
-  "Downward Dog": [
-    "Dogs naturally perform this stretch after waking up",
-    "Ancient yogis observed animals for pose inspiration",
-    "This is one of the most recognized yoga poses worldwide"
-  ],
-  "Child's Pose": [
-    "This is a natural resting position for children",
-    "It's one of the safest poses to practice during pregnancy",
-    "Child's Pose can lower blood pressure in just 3 minutes"
-  ],
-  "Cobra Pose": [
-    "Cobras rise up in a similar defensive posture",
-    "Ancient Egyptian art shows poses similar to Bhujangasana",
-    "This pose can improve spine flexibility by 40% over 3 months"
-  ],
-  "Mountain Pose": [
-    "Considered the foundation of all standing poses",
-    "Practiced correctly, it engages over 200 muscles",
-    "Mountains represent stability in many spiritual traditions"
-  ],
-  "Crow Pose": [
-    "Crows are symbols of intelligence and balance in many cultures",
-    "This was traditionally taught only to advanced practitioners",
-    "Building to Crow Pose can take 3-6 months of consistent practice"
-  ],
-  "default": [
-    "Yoga has been practiced for over 5,000 years",
-    "Regular practice can reduce stress hormones by 40%",
-    "This pose helps align your chakras and energy flow"
-  ]
-};
+const hacks = [
+  {
+    title: "Use a Strap for Flexibility",
+    description: "Can't reach your toes? Use a yoga strap or belt to gradually increase your flexibility safely.",
+  },
+  {
+    title: "Wall Support for Balance",
+    description: "Practice balance poses near a wall for support as you build strength and confidence.",
+  },
+  {
+    title: "Block for Deeper Stretches",
+    description: "Place blocks under your hands in forward folds to bring the ground closer and prevent strain.",
+  },
+  {
+    title: "Micro-Practice Routine",
+    description: "Do 5 minutes of yoga upon waking to energize your day without overwhelming your schedule.",
+  },
+];
 
-const PoseFunFacts = ({ poseName }: PoseFunFactsProps) => {
-  const facts = funFactsDatabase[poseName] || funFactsDatabase.default;
-  
+export function PoseFunFacts() {
   return (
-    <Card className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 border-amber-200 dark:border-amber-800">
-      <div className="space-y-3">
-        <div className="flex items-center gap-2 mb-3">
-          <Lightbulb className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-          <h3 className="font-semibold text-amber-900 dark:text-amber-100">Fun Facts</h3>
-        </div>
-        {facts.map((fact, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <span className="text-amber-600 dark:text-amber-400 font-bold mt-0.5">•</span>
-            <p className="text-sm text-amber-900 dark:text-amber-100">{fact}</p>
-          </div>
-        ))}
-      </div>
+    <Card className="border-border/50 shadow-lg">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Lightbulb className="h-5 w-5 text-accent" />
+          Yoga Wisdom
+        </CardTitle>
+        <CardDescription>Amazing facts and practical hacks for your practice</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="facts" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="facts">Facts</TabsTrigger>
+            <TabsTrigger value="hacks">Hacks</TabsTrigger>
+          </TabsList>
+          <TabsContent value="facts" className="space-y-4 mt-4">
+            {facts.map((fact, index) => (
+              <div key={index} className="flex gap-3 p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
+                <Star className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold mb-1">{fact.title}</h4>
+                  <p className="text-sm text-muted-foreground">{fact.description}</p>
+                </div>
+              </div>
+            ))}
+          </TabsContent>
+          <TabsContent value="hacks" className="space-y-4 mt-4">
+            {hacks.map((hack, index) => (
+              <div key={index} className="flex gap-3 p-3 rounded-lg bg-secondary/5 hover:bg-secondary/10 transition-colors">
+                <Lightbulb className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold mb-1">{hack.title}</h4>
+                  <p className="text-sm text-muted-foreground">{hack.description}</p>
+                </div>
+              </div>
+            ))}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
     </Card>
   );
-};
-
-export default PoseFunFacts;
+}

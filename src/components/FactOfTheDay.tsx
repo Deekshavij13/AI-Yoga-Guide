@@ -1,41 +1,39 @@
-import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const yogaFacts = [
-  "Yoga originated in ancient India over 5,000 years ago.",
-  "The word 'yoga' comes from Sanskrit and means 'to yoke' or 'to unite'.",
-  "Regular yoga practice can improve flexibility, strength, and mental clarity.",
-  "There are over 100 different types of yoga practices.",
-  "Yoga can help reduce stress and anxiety by lowering cortisol levels.",
-  "The oldest known yoga scripture is the Rig Veda, dating back to 1500 BCE.",
-  "Practicing yoga regularly can improve your sleep quality.",
-  "Yoga helps improve posture and reduces back pain.",
-  "Breathing exercises (pranayama) can increase lung capacity by up to 15%.",
-  "Hot yoga can help burn up to 600 calories per session.",
-  "Yoga has been shown to boost immune system function.",
-  "The practice of yoga can help lower blood pressure naturally.",
+const facts = [
+  "Yoga can improve your flexibility by up to 35% in just 8 weeks of regular practice.",
+  "The word 'yoga' comes from the Sanskrit word 'yuj' which means 'to unite or integrate'.",
+  "Practicing yoga for just 20 minutes can improve your brain function and focus.",
+  "There are over 100 different types of yoga, each with unique benefits and focuses.",
+  "Yoga can help reduce chronic pain by up to 22% through regular practice.",
+  "Ancient yogis believed that humans take a fixed number of breaths in a lifetime, so breathing slowly extends life.",
+  "The tree pose (Vrikshasana) can improve your balance by 30% with consistent practice.",
+  "Yoga can boost your immune system by reducing stress hormones and inflammation.",
+  "The corpse pose (Savasana) is considered one of the most challenging poses to master.",
+  "Regular yoga practice can lower your blood pressure by an average of 10 points.",
 ];
 
-const FactOfTheDay = () => {
+export function FactOfTheDay() {
   const [fact, setFact] = useState("");
 
   useEffect(() => {
     const today = new Date().getDate();
-    setFact(yogaFacts[today % yogaFacts.length]);
+    setFact(facts[today % facts.length]);
   }, []);
 
   return (
-    <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 border-none">
-      <div className="flex items-start gap-3">
-        <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-        <div>
-          <h3 className="font-semibold text-sm mb-1">Fact of the Day</h3>
-          <p className="text-sm text-muted-foreground">{fact}</p>
-        </div>
-      </div>
+    <Card className="border-border/50 shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          Fun Fact of the Day
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground leading-relaxed">{fact}</p>
+      </CardContent>
     </Card>
   );
-};
-
-export default FactOfTheDay;
+}

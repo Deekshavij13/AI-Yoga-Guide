@@ -44,7 +44,7 @@ const Index = () => {
               </h1>
               
               <p className="text-xl text-muted-foreground max-w-xl">
-                Experience real-time AI pose correction, track your progress, and build lasting habits with our intelligent yoga guide.
+                Experience real-time AI pose correction, track your progress, and build lasting habits with our intelligent virtual yoga guide.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">

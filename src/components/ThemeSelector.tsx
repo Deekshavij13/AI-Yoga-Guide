@@ -12,7 +12,7 @@ const themes = [
   { id: "aurora" as CustomTheme, name: "Aurora Nights", icon: "🌌" },
   { id: "sunrise" as CustomTheme, name: "Sunrise Charm", icon: "🌅" },
   { id: "moonlight" as CustomTheme, name: "Moonlight Love", icon: "🌙" },
-  { id: "default" as CustomTheme, name: "Default", icon: "✨" },
+  { id: "default" as CustomTheme, name: "Floral Evening", icon: "🌸" },
 ];
 
 export function ThemeSelector() {
