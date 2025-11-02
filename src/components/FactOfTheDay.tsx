@@ -25,14 +25,14 @@ export function FactOfTheDay() {
 
   return (
     <Card className="border-border/50 shadow-lg bg-gradient-to-br from-primary/5 to-secondary/5">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          Fun Fact of the Day
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground leading-relaxed">{fact}</p>
+      <CardContent className="pt-6">
+        <div className="flex items-start gap-4">
+          <Sparkles className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+          <div>
+            <h3 className="font-semibold text-lg mb-2">Fun Fact of the Day</h3>
+            <p className="text-muted-foreground leading-relaxed">{fact}</p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

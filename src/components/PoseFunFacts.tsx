@@ -43,20 +43,20 @@ const hacks = [
 export function PoseFunFacts() {
   return (
     <Card className="border-border/50 shadow-lg">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-accent" />
-          Yoga Wisdom
-        </CardTitle>
-        <CardDescription>Amazing facts and practical hacks for your practice</CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
+        <div className="flex items-start gap-4 mb-4">
+          <Lightbulb className="h-6 w-6 text-accent flex-shrink-0 mt-1" />
+          <div>
+            <h3 className="font-semibold text-lg mb-1">Yoga Wisdom</h3>
+            <p className="text-sm text-muted-foreground">Amazing facts and practical hacks for your practice</p>
+          </div>
+        </div>
         <Tabs defaultValue="facts" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="facts">Facts</TabsTrigger>
             <TabsTrigger value="hacks">Hacks</TabsTrigger>
           </TabsList>
-          <TabsContent value="facts" className="space-y-4 mt-4">
+          <TabsContent value="facts" className="space-y-3 mt-4">
             {facts.map((fact, index) => (
               <div key={index} className="flex gap-3 p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
                 <Star className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
@@ -67,7 +67,7 @@ export function PoseFunFacts() {
               </div>
             ))}
           </TabsContent>
-          <TabsContent value="hacks" className="space-y-4 mt-4">
+          <TabsContent value="hacks" className="space-y-3 mt-4">
             {hacks.map((hack, index) => (
               <div key={index} className="flex gap-3 p-3 rounded-lg bg-secondary/5 hover:bg-secondary/10 transition-colors">
                 <Lightbulb className="h-5 w-5 text-secondary flex-shrink-0 mt-0.5" />

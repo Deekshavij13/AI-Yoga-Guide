@@ -91,7 +91,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Yoga Guide
+              Virtual Yoga Guide
             </h1>
             <p className="text-muted-foreground mt-1">Welcome back to your practice</p>
           </div>
@@ -105,10 +105,9 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <FactOfTheDay />
-          <PoseFunFacts />
-        </div>
+        <FactOfTheDay />
+        
+        <PoseFunFacts />
 
         <div className="grid md:grid-cols-4 gap-6">
           <Card>
