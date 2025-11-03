@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Flame, LogOut, Trophy, TrendingUp, Gamepad2, BookOpen, Apple } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { FactOfTheDay } from "@/components/FactOfTheDay";
 import { PoseFunFacts } from "@/components/PoseFunFacts";
@@ -97,7 +96,6 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-2">
             <ThemeSelector />
-            <ThemeToggle />
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign Out

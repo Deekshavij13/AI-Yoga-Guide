@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Camera, Flame, Activity, Sparkles } from 'lucide-react';
 import { useEffect } from 'react';
 import yogaHero from '@/assets/yoga-hero.jpg';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { ThemeSelector } from '@/components/ThemeSelector';
 
 const Index = () => {
@@ -20,9 +19,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="fixed top-4 right-4 z-50 flex gap-2">
+      <div className="fixed top-4 right-4 z-50">
         <ThemeSelector />
-        <ThemeToggle />
       </div>
       {/* Hero Section */}
       <section className="relative overflow-hidden">

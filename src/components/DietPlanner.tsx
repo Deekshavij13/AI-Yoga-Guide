@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Apple, TrendingDown, TrendingUp, Target } from "lucide-react";
+import { Loader2, Apple, TrendingDown, TrendingUp, Target, Flame, Droplet, Utensils, Heart, CheckCircle2, XCircle, Lightbulb } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const DIET_GOALS = [
   { id: "weight_loss", label: "Weight Loss", icon: TrendingDown },
@@ -15,6 +16,76 @@ const DIET_GOALS = [
   { id: "muscle_gain", label: "Muscle Gain", icon: TrendingUp },
   { id: "healthy_living", label: "Healthy Living", icon: Apple },
 ];
+
+// Helper component to render diet plan with visual enhancements
+function DietPlanRenderer({ content }: { content: string }) {
+  const sections = content.split('\n\n');
+  
+  const getSectionIcon = (text: string) => {
+    const lower = text.toLowerCase();
+    if (lower.includes('calorie')) return <Flame className="h-5 w-5 text-orange-500" />;
+    if (lower.includes('macro') || lower.includes('protein') || lower.includes('carb')) return <TrendingUp className="h-5 w-5 text-blue-500" />;
+    if (lower.includes('meal') || lower.includes('breakfast') || lower.includes('lunch') || lower.includes('dinner')) return <Utensils className="h-5 w-5 text-green-500" />;
+    if (lower.includes('hydration') || lower.includes('water')) return <Droplet className="h-5 w-5 text-cyan-500" />;
+    if (lower.includes('tip') || lower.includes('success')) return <Lightbulb className="h-5 w-5 text-yellow-500" />;
+    if (lower.includes('include') || lower.includes('foods to')) return <CheckCircle2 className="h-5 w-5 text-green-600" />;
+    if (lower.includes('avoid')) return <XCircle className="h-5 w-5 text-red-500" />;
+    return <Target className="h-5 w-5 text-primary" />;
+  };
+
+  return (
+    <div className="space-y-6">
+      {sections.map((section, idx) => {
+        const lines = section.split('\n').filter(line => line.trim());
+        if (lines.length === 0) return null;
+        
+        const isHeader = lines[0].match(/^\d+\.|^[A-Z][^.]*:/);
+        
+        return (
+          <div key={idx} className="space-y-3">
+            {isHeader && (
+              <>
+                <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border-l-4 border-primary">
+                  {getSectionIcon(lines[0])}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-primary mb-2">{lines[0]}</h3>
+                    <div className="space-y-2">
+                      {lines.slice(1).map((line, i) => {
+                        const isBullet = line.trim().startsWith('-') || line.trim().startsWith('•');
+                        const cleanLine = line.replace(/^[-•]\s*/, '');
+                        
+                        return (
+                          <div key={i} className={`${isBullet ? 'flex items-start gap-2 ml-2' : ''}`}>
+                            {isBullet && <span className="text-primary mt-1">•</span>}
+                            <p className="text-sm leading-relaxed">
+                              {cleanLine.split('**').map((part, j) => 
+                                j % 2 === 1 ? (
+                                  <strong key={j} className="text-secondary font-semibold">{part}</strong>
+                                ) : (
+                                  <span key={j}>{part}</span>
+                                )
+                              )}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+                {idx < sections.length - 1 && <Separator className="my-4" />}
+              </>
+            )}
+            {!isHeader && (
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {section}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function DietPlanner() {
   const [selectedGoal, setSelectedGoal] = useState<string>("");
@@ -140,19 +211,21 @@ Keep the plan realistic, healthy, and sustainable. Format it clearly with sectio
       </Card>
 
       {dietPlan && (
-        <Card>
-          <CardHeader>
+        <Card className="border-2 border-primary/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10">
             <div className="flex items-center justify-between">
-              <CardTitle>Your Personalized Diet Plan</CardTitle>
-              <Badge variant="secondary">AI Generated</Badge>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Utensils className="h-6 w-6 text-primary" />
+                Your Personalized Diet Plan
+              </CardTitle>
+              <Badge variant="secondary" className="text-sm">
+                <Heart className="h-3 w-3 mr-1" />
+                AI Generated
+              </Badge>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm max-w-none dark:prose-invert">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {dietPlan}
-              </div>
-            </div>
+          <CardContent className="p-6">
+            <DietPlanRenderer content={dietPlan} />
           </CardContent>
         </Card>
       )}

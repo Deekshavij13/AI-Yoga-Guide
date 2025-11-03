@@ -225,20 +225,32 @@ export default function YogaSession() {
   const startDetection = async () => {
     if (!videoRef.current || !canvasRef.current) return;
 
-    setIsDetecting(true);
-    setIsSessionActive(true);
-    setTimer(0);
-    setLastMovementTime(Date.now());
-    setIsIdle(false);
+    try {
+      setIsDetecting(true);
+      setIsSessionActive(true);
+      setTimer(0);
+      setLastMovementTime(Date.now());
+      setIsIdle(false);
 
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 1280, height: 720 },
-    });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720 },
+        audio: false,
+      });
 
-    videoRef.current.srcObject = stream;
-    videoRef.current.play();
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
 
-    detectPose();
+      detectPose();
+    } catch (error) {
+      console.error("Camera access error:", error);
+      toast({
+        title: "Camera Access Denied",
+        description: "Please allow camera access to use pose detection.",
+        variant: "destructive",
+      });
+      setIsDetecting(false);
+      setIsSessionActive(false);
+    }
   };
 
   const stopDetection = () => {
