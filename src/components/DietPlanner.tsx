@@ -18,7 +18,7 @@ const DIET_GOALS = [
 ];
 
 // Helper component to render diet plan with visual enhancements
-function DietPlanRenderer({ content }: { content: string }) {
+function DietPlanRenderer({ content, images }: { content: string; images: string[] }) {
   const sections = content.split('\n\n');
   
   const getSectionIcon = (text: string) => {
@@ -35,6 +35,26 @@ function DietPlanRenderer({ content }: { content: string }) {
 
   return (
     <div className="space-y-6">
+      {/* Meal Images Gallery */}
+      {images.length > 0 && (
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
+          {images.map((img, idx) => (
+            <div key={idx} className="relative overflow-hidden rounded-lg border-2 border-primary/20 shadow-lg hover:shadow-xl transition-shadow">
+              <img 
+                src={img} 
+                alt={`Meal inspiration ${idx + 1}`}
+                className="w-full h-48 object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                <p className="text-white text-sm font-semibold">
+                  {idx === 0 ? "Breakfast Inspiration" : idx === 1 ? "Lunch Ideas" : "Dinner Options"}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {sections.map((section, idx) => {
         const lines = section.split('\n').filter(line => line.trim());
         if (lines.length === 0) return null;
@@ -83,6 +103,62 @@ function DietPlanRenderer({ content }: { content: string }) {
           </div>
         );
       })}
+
+      {/* Visual Flowchart Summary */}
+      <Card className="bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 border-2 border-primary/30">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Target className="h-6 w-6 text-primary" />
+            Quick Reference Guide
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
+                <span className="text-primary font-bold">1</span>
+              </div>
+              <div className="flex-1 p-4 bg-background rounded-lg border border-primary/20">
+                <p className="font-semibold text-primary">Plan Your Meals</p>
+                <p className="text-sm text-muted-foreground">Follow the meal structure above</p>
+              </div>
+              <div className="hidden md:block text-primary text-2xl">→</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center border-2 border-secondary">
+                <span className="text-secondary font-bold">2</span>
+              </div>
+              <div className="flex-1 p-4 bg-background rounded-lg border border-secondary/20">
+                <p className="font-semibold text-secondary">Track Portions</p>
+                <p className="text-sm text-muted-foreground">Measure servings accurately</p>
+              </div>
+              <div className="hidden md:block text-secondary text-2xl">→</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center border-2 border-accent">
+                <span className="text-accent font-bold">3</span>
+              </div>
+              <div className="flex-1 p-4 bg-background rounded-lg border border-accent/20">
+                <p className="font-semibold text-accent">Stay Hydrated</p>
+                <p className="text-sm text-muted-foreground">Drink water throughout the day</p>
+              </div>
+              <div className="hidden md:block text-accent text-2xl">→</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center border-2 border-green-500">
+                <CheckCircle2 className="h-6 w-6 text-green-500" />
+              </div>
+              <div className="flex-1 p-4 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border-2 border-primary/30">
+                <p className="font-bold text-primary text-lg">Achieve Your Goals!</p>
+                <p className="text-sm text-muted-foreground">Stay consistent and track progress</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -91,6 +167,7 @@ export default function DietPlanner() {
   const [selectedGoal, setSelectedGoal] = useState<string>("");
   const [userInfo, setUserInfo] = useState("");
   const [dietPlan, setDietPlan] = useState("");
+  const [mealImages, setMealImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -106,34 +183,28 @@ export default function DietPlanner() {
 
     setIsLoading(true);
     setDietPlan("");
+    setMealImages([]);
 
     const goalLabel = DIET_GOALS.find(g => g.id === selectedGoal)?.label || selectedGoal;
-    
-    const prompt = `As a professional nutritionist, create a personalized diet plan for ${goalLabel}.
-
-User Information: ${userInfo || "No specific information provided"}
-
-Please provide:
-1. Daily calorie target
-2. Macronutrient breakdown (protein, carbs, fats)
-3. Sample meal plan for one day (breakfast, lunch, dinner, snacks)
-4. Foods to include and avoid
-5. Hydration recommendations
-6. 3 practical tips for success
-
-Keep the plan realistic, healthy, and sustainable. Format it clearly with sections.`;
 
     try {
-      const { data, error } = await supabase.functions.invoke("yoga-chat", {
-        body: { message: prompt },
+      const { data, error } = await supabase.functions.invoke("diet-planner", {
+        body: { 
+          goal: goalLabel,
+          userInfo: userInfo 
+        },
       });
 
       if (error) throw error;
 
       setDietPlan(data.response);
+      if (data.images && data.images.length > 0) {
+        setMealImages(data.images);
+      }
+      
       toast({
         title: "Diet Plan Generated!",
-        description: "Your personalized plan is ready",
+        description: "Your personalized plan with images is ready",
       });
     } catch (error) {
       console.error("Error generating diet plan:", error);
@@ -225,7 +296,7 @@ Keep the plan realistic, healthy, and sustainable. Format it clearly with sectio
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            <DietPlanRenderer content={dietPlan} />
+            <DietPlanRenderer content={dietPlan} images={mealImages} />
           </CardContent>
         </Card>
       )}

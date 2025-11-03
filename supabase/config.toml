@@ -1,1 +1,7 @@
 project_id = "sgzvedzeduijggrcoacv"
+
+[functions.yoga-chat]
+verify_jwt = false
+
+[functions.diet-planner]
+verify_jwt = false
