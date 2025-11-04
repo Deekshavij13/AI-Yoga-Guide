@@ -93,23 +93,29 @@ export const detectPoseFromVideo = async (
     lastVideoTime = currentTime;
     const results = poseLandmarker.detectForVideo(video, currentTime);
     
-    // Draw landmarks on canvas
+    // Draw video frame and landmarks on canvas
     const canvasCtx = canvas.getContext('2d');
-    if (canvasCtx && results.landmarks) {
+    if (canvasCtx) {
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
       
-      const drawingUtils = new DrawingUtils(canvasCtx);
-      for (const landmark of results.landmarks) {
-        drawingUtils.drawLandmarks(landmark, {
-          radius: 4,
-          fillColor: '#2DD4BF',
-          lineWidth: 2
-        });
-        drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
-          color: '#A78BFA',
-          lineWidth: 3
-        });
+      // First, draw the video frame to the canvas
+      canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // Then draw the pose landmarks on top
+      if (results.landmarks) {
+        const drawingUtils = new DrawingUtils(canvasCtx);
+        for (const landmark of results.landmarks) {
+          drawingUtils.drawLandmarks(landmark, {
+            radius: 4,
+            fillColor: '#2DD4BF',
+            lineWidth: 2
+          });
+          drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
+            color: '#A78BFA',
+            lineWidth: 3
+          });
+        }
       }
       canvasCtx.restore();
     }
