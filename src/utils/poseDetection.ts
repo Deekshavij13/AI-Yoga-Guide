@@ -87,57 +87,52 @@ export const detectPoseFromVideo = async (
   
   if (!poseLandmarker) return null;
 
-  // Check if video is ready
-  if (video.readyState < 2) {
-    console.log('Video not ready yet, readyState:', video.readyState);
+  // Check if video is ready and playing
+  if (video.readyState < 2 || video.paused) {
     return null;
   }
 
   const currentTime = performance.now();
   
-  if (currentTime !== lastVideoTime) {
-    lastVideoTime = currentTime;
+  try {
+    const results = poseLandmarker.detectForVideo(video, currentTime);
     
-    try {
-      const results = poseLandmarker.detectForVideo(video, currentTime);
+    // Always draw video frame and landmarks on canvas
+    const canvasCtx = canvas.getContext('2d');
+    if (canvasCtx) {
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw video frame and landmarks on canvas
-      const canvasCtx = canvas.getContext('2d');
-      if (canvasCtx) {
-        canvasCtx.save();
-        canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // First, draw the video frame to the canvas
-        try {
-          canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        } catch (err) {
-          console.error('Error drawing video to canvas:', err);
+      // ALWAYS draw the video frame to the canvas first
+      canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      // Then draw the pose landmarks on top if available
+      if (results.landmarks && results.landmarks.length > 0) {
+        const drawingUtils = new DrawingUtils(canvasCtx);
+        for (const landmark of results.landmarks) {
+          drawingUtils.drawLandmarks(landmark, {
+            radius: 4,
+            fillColor: '#2DD4BF',
+            lineWidth: 2
+          });
+          drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
+            color: '#A78BFA',
+            lineWidth: 3
+          });
         }
-        
-        // Then draw the pose landmarks on top
-        if (results.landmarks) {
-          const drawingUtils = new DrawingUtils(canvasCtx);
-          for (const landmark of results.landmarks) {
-            drawingUtils.drawLandmarks(landmark, {
-              radius: 4,
-              fillColor: '#2DD4BF',
-              lineWidth: 2
-            });
-            drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
-              color: '#A78BFA',
-              lineWidth: 3
-            });
-          }
-        }
-        canvasCtx.restore();
       }
-      
-      return results.landmarks;
-    } catch (error) {
-      console.error('Error detecting pose:', error);
-      return null;
+      canvasCtx.restore();
     }
+    
+    return results.landmarks;
+  } catch (error) {
+    console.error('Error detecting pose:', error);
+    // Still try to draw the video even if detection fails
+    const canvasCtx = canvas.getContext('2d');
+    if (canvasCtx && video.readyState >= 2) {
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+    return null;
   }
-  
-  return null;
 };

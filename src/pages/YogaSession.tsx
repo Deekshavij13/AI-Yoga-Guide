@@ -193,30 +193,34 @@ export default function YogaSession() {
   const detectPose = async () => {
     if (!videoRef.current || !canvasRef.current || !isDetecting) return;
 
-    const landmarks = await detectPoseFromVideo(videoRef.current, canvasRef.current);
-    
-    if (landmarks && landmarks.length > 0) {
-      const analysis = analyzePose(landmarks);
-      const accuracy = Math.random() * 0.3 + 0.6; // Simulated accuracy
-      setPoseAccuracy(accuracy);
+    try {
+      const landmarks = await detectPoseFromVideo(videoRef.current, canvasRef.current);
       
-      // Reset idle state if pose detected
-      setLastMovementTime(Date.now());
-      setIsIdle(false);
+      if (landmarks && landmarks.length > 0) {
+        const analysis = analyzePose(landmarks);
+        const accuracy = Math.random() * 0.3 + 0.6; // Simulated accuracy
+        setPoseAccuracy(accuracy);
+        
+        // Reset idle state if pose detected
+        setLastMovementTime(Date.now());
+        setIsIdle(false);
 
-      // Play alert sound for incorrect pose
-      if (accuracy < 0.6) {
-        playBeep(true); // Double beep for wrong pose
-      } else if (accuracy < 0.75) {
-        playBeep(false); // Single beep for improvement needed
+        // Play alert sound for incorrect pose
+        if (accuracy < 0.6) {
+          playBeep(true); // Double beep for wrong pose
+        } else if (accuracy < 0.75) {
+          playBeep(false); // Single beep for improvement needed
+        }
+      } else {
+        // No landmarks detected - user might be idle
+        const timeSinceMovement = Date.now() - lastMovementTime;
+        if (timeSinceMovement > 3000 && !isIdle) { // 3 seconds of no movement
+          setIsIdle(true);
+          playBeep(true); // Alert for being idle
+        }
       }
-    } else {
-      // No landmarks detected - user might be idle
-      const timeSinceMovement = Date.now() - lastMovementTime;
-      if (timeSinceMovement > 3000 && !isIdle) { // 3 seconds of no movement
-        setIsIdle(true);
-        playBeep(true); // Alert for being idle
-      }
+    } catch (error) {
+      console.error('Pose detection error:', error);
     }
 
     animationFrameRef.current = requestAnimationFrame(detectPose);
