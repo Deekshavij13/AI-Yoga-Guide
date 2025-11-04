@@ -431,17 +431,16 @@ export default function YogaSession() {
               <div className="aspect-[3/4] bg-black rounded-lg overflow-hidden relative border-4 border-secondary/30">
                 <video
                   ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full object-contain opacity-0 pointer-events-none"
                   playsInline
                   muted
                   autoPlay
-                  style={{ display: 'none' }}
                 />
                 <canvas
                   ref={canvasRef}
                   width={1280}
                   height={720}
-                  className="w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
                 {!isInitialized && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/80">
