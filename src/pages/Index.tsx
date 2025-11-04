@@ -38,7 +38,9 @@ const Index = () => {
                   Transform
                 </span>
                 <br />
-                Your Yoga Journey
+                <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                  Your Yoga Journey
+                </span>
               </h1>
               
               <p className="text-xl text-muted-foreground max-w-xl">

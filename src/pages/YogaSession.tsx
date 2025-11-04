@@ -233,19 +233,34 @@ export default function YogaSession() {
       setIsIdle(false);
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720 },
+        video: { 
+          width: { ideal: 1280 }, 
+          height: { ideal: 720 },
+          facingMode: "user"
+        },
         audio: false,
       });
 
       videoRef.current.srcObject = stream;
+      
+      // Wait for video metadata to load before playing
+      await new Promise<void>((resolve) => {
+        videoRef.current!.onloadedmetadata = () => {
+          resolve();
+        };
+      });
+      
       await videoRef.current.play();
+      
+      // Wait a bit for the video to actually start rendering frames
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       detectPose();
     } catch (error) {
       console.error("Camera access error:", error);
       toast({
         title: "Camera Access Denied",
-        description: "Please allow camera access to use pose detection.",
+        description: "Please allow camera access to use pose detection. Make sure you're using HTTPS or localhost.",
         variant: "destructive",
       });
       setIsDetecting(false);
