@@ -232,6 +232,7 @@ export default function YogaSession() {
       setLastMovementTime(Date.now());
       setIsIdle(false);
 
+      console.log('Requesting camera access...');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           width: { ideal: 1280 }, 
@@ -241,26 +242,44 @@ export default function YogaSession() {
         audio: false,
       });
 
+      console.log('Camera access granted, stream:', stream);
       videoRef.current.srcObject = stream;
       
-      // Wait for video metadata to load before playing
-      await new Promise<void>((resolve) => {
+      // Wait for video metadata to load
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('Video metadata timeout')), 5000);
         videoRef.current!.onloadedmetadata = () => {
+          clearTimeout(timeout);
+          console.log('Video metadata loaded');
           resolve();
         };
       });
       
+      console.log('Starting video playback...');
       await videoRef.current.play();
       
-      // Wait a bit for the video to actually start rendering frames
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait for video to have actual frames
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('Video ready timeout')), 5000);
+        const checkVideo = () => {
+          if (videoRef.current!.readyState >= 2) {
+            clearTimeout(timeout);
+            console.log('Video ready, dimensions:', videoRef.current!.videoWidth, 'x', videoRef.current!.videoHeight);
+            resolve();
+          } else {
+            setTimeout(checkVideo, 100);
+          }
+        };
+        checkVideo();
+      });
 
+      console.log('Starting pose detection...');
       detectPose();
     } catch (error) {
-      console.error("Camera access error:", error);
+      console.error("Camera initialization error:", error);
       toast({
-        title: "Camera Access Denied",
-        description: "Please allow camera access to use pose detection. Make sure you're using HTTPS or localhost.",
+        title: "Camera Error",
+        description: error instanceof Error ? error.message : "Failed to initialize camera. Please check permissions and try again.",
         variant: "destructive",
       });
       setIsDetecting(false);
@@ -408,8 +427,11 @@ export default function YogaSession() {
               <div className="aspect-[3/4] bg-black rounded-lg overflow-hidden relative border-4 border-secondary/30">
                 <video
                   ref={videoRef}
-                  className="hidden"
+                  className="absolute inset-0 w-full h-full object-contain"
                   playsInline
+                  muted
+                  autoPlay
+                  style={{ display: 'none' }}
                 />
                 <canvas
                   ref={canvasRef}
