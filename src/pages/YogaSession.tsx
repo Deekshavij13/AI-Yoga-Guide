@@ -39,6 +39,12 @@ export default function YogaSession() {
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [isIdle, setIsIdle] = useState(false);
   const [lastMovementTime, setLastMovementTime] = useState(Date.now());
+  const [bodyPartFeedback, setBodyPartFeedback] = useState<Array<{
+    part: string;
+    message: string;
+    position: { x: number; y: number };
+    severity: 'error' | 'warning' | 'success';
+  }>>([]);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -199,29 +205,82 @@ export default function YogaSession() {
     const canvas = canvasRef.current;
 
     try {
-      const landmarks = await detectPoseFromVideo(video, canvas);
+      const result = await detectPoseFromVideo(video, canvas);
       
-      if (landmarks && landmarks.length > 0) {
-        const analysis = analyzePose(landmarks);
-        const accuracy = Math.random() * 0.3 + 0.6; // Simulated accuracy
-        setPoseAccuracy(accuracy);
+      if (result && result.landmarks && result.landmarks.length > 0) {
+        const analysis = analyzePose(result.landmarks);
+        setPoseAccuracy(analysis.confidence);
+        setBodyPartFeedback(analysis.bodyPartFeedback);
+        
+        // Draw feedback tooltips on canvas
+        if (analysis.bodyPartFeedback.length > 0 && canvasRef.current) {
+          const ctx = canvasRef.current.getContext('2d');
+          if (ctx) {
+            const canvasWidth = canvasRef.current.width;
+            const canvasHeight = canvasRef.current.height;
+            
+            analysis.bodyPartFeedback.forEach(feedback => {
+              const x = feedback.position.x * canvasWidth;
+              const y = feedback.position.y * canvasHeight;
+              
+              // Draw tooltip background
+              ctx.save();
+              ctx.font = 'bold 16px Arial';
+              const textWidth = ctx.measureText(feedback.message).width;
+              const padding = 12;
+              const tooltipWidth = textWidth + padding * 2;
+              const tooltipHeight = 36;
+              
+              // Tooltip background with shadow
+              ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+              ctx.shadowBlur = 10;
+              ctx.shadowOffsetY = 4;
+              
+              const bgColor = feedback.severity === 'error' ? '#ef4444' : 
+                             feedback.severity === 'warning' ? '#f59e0b' : '#22c55e';
+              
+              ctx.fillStyle = bgColor;
+              ctx.beginPath();
+              ctx.roundRect(x - tooltipWidth / 2, y - 50, tooltipWidth, tooltipHeight, 8);
+              ctx.fill();
+              
+              // Arrow pointing to body part
+              ctx.beginPath();
+              ctx.moveTo(x, y - 14);
+              ctx.lineTo(x - 8, y - 22);
+              ctx.lineTo(x + 8, y - 22);
+              ctx.closePath();
+              ctx.fill();
+              
+              // Text
+              ctx.shadowColor = 'transparent';
+              ctx.fillStyle = 'white';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(feedback.message, x, y - 32);
+              
+              ctx.restore();
+            });
+          }
+        }
         
         // Reset idle state if pose detected
         setLastMovementTime(Date.now());
         setIsIdle(false);
 
         // Play alert sound for incorrect pose
-        if (accuracy < 0.6) {
-          playBeep(true); // Double beep for wrong pose
-        } else if (accuracy < 0.75) {
-          playBeep(false); // Single beep for improvement needed
+        if (analysis.confidence < 0.6) {
+          playBeep(true);
+        } else if (analysis.confidence < 0.75) {
+          playBeep(false);
         }
       } else {
+        setBodyPartFeedback([]);
         // No landmarks detected - user might be idle
         const timeSinceMovement = Date.now() - lastMovementTime;
-        if (timeSinceMovement > 3000 && !isIdle) { // 3 seconds of no movement
+        if (timeSinceMovement > 3000 && !isIdle) {
           setIsIdle(true);
-          playBeep(true); // Alert for being idle
+          playBeep(true);
         }
       }
     } catch (error) {

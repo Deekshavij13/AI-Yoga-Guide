@@ -24,6 +24,12 @@ export interface PoseAnalysis {
   isCorrect: boolean;
   confidence: number;
   feedback: string;
+  bodyPartFeedback: {
+    part: string;
+    message: string;
+    position: { x: number; y: number };
+    severity: 'error' | 'warning' | 'success';
+  }[];
 }
 
 // Simple pose validation based on key landmarks
@@ -32,11 +38,13 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     return {
       isCorrect: false,
       confidence: 0,
-      feedback: "No pose detected"
+      feedback: "No pose detected",
+      bodyPartFeedback: []
     };
   }
 
   const pose = landmarks[0];
+  const bodyPartFeedback: PoseAnalysis['bodyPartFeedback'] = [];
   
   // Check shoulder alignment (landmarks 11 and 12)
   const leftShoulder = pose[11];
@@ -46,13 +54,27 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     return {
       isCorrect: false,
       confidence: 0,
-      feedback: "Pose incomplete"
+      feedback: "Pose incomplete",
+      bodyPartFeedback: []
     };
   }
 
   // Calculate shoulder alignment
   const shoulderDiff = Math.abs(leftShoulder.y - rightShoulder.y);
-  const isAligned = shoulderDiff < 0.1; // Threshold for alignment
+  const isAligned = shoulderDiff < 0.1;
+  
+  if (!isAligned) {
+    const shoulderMidpoint = {
+      x: (leftShoulder.x + rightShoulder.x) / 2,
+      y: (leftShoulder.y + rightShoulder.y) / 2
+    };
+    bodyPartFeedback.push({
+      part: 'shoulders',
+      message: leftShoulder.y > rightShoulder.y ? 'Raise left shoulder' : 'Raise right shoulder',
+      position: shoulderMidpoint,
+      severity: 'error'
+    });
+  }
   
   // Check hip alignment (landmarks 23 and 24)
   const leftHip = pose[23];
@@ -60,20 +82,69 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
   const hipDiff = Math.abs(leftHip.y - rightHip.y);
   const hipsAligned = hipDiff < 0.1;
   
-  const confidence = (isAligned && hipsAligned) ? 0.85 : 0.3;
+  if (!hipsAligned) {
+    const hipMidpoint = {
+      x: (leftHip.x + rightHip.x) / 2,
+      y: (leftHip.y + rightHip.y) / 2
+    };
+    bodyPartFeedback.push({
+      part: 'hips',
+      message: leftHip.y > rightHip.y ? 'Raise left hip' : 'Raise right hip',
+      position: hipMidpoint,
+      severity: 'warning'
+    });
+  }
+  
+  // Check arm extension (landmarks 11, 13, 15 for left arm)
+  const leftElbow = pose[13];
+  const leftWrist = pose[15];
+  if (leftShoulder && leftElbow && leftWrist) {
+    const armAngle = Math.atan2(leftWrist.y - leftElbow.y, leftWrist.x - leftElbow.x);
+    const shoulderElbowAngle = Math.atan2(leftElbow.y - leftShoulder.y, leftElbow.x - leftShoulder.x);
+    const totalAngle = Math.abs(armAngle - shoulderElbowAngle);
+    
+    if (totalAngle < 2.5) { // Less than ~143 degrees
+      bodyPartFeedback.push({
+        part: 'left_arm',
+        message: 'Extend left arm more',
+        position: leftElbow,
+        severity: 'warning'
+      });
+    }
+  }
+  
+  // Check right arm extension
+  const rightElbow = pose[14];
+  const rightWrist = pose[16];
+  if (rightShoulder && rightElbow && rightWrist) {
+    const armAngle = Math.atan2(rightWrist.y - rightElbow.y, rightWrist.x - rightElbow.x);
+    const shoulderElbowAngle = Math.atan2(rightElbow.y - rightShoulder.y, rightElbow.x - rightShoulder.x);
+    const totalAngle = Math.abs(armAngle - shoulderElbowAngle);
+    
+    if (totalAngle < 2.5) {
+      bodyPartFeedback.push({
+        part: 'right_arm',
+        message: 'Extend right arm more',
+        position: rightElbow,
+        severity: 'warning'
+      });
+    }
+  }
+  
+  const confidence = (isAligned && hipsAligned && bodyPartFeedback.length === 0) ? 0.85 : 
+                     (isAligned || hipsAligned) ? 0.5 : 0.3;
   const isCorrect = confidence > 0.6;
   
   let feedback = "Great posture!";
-  if (!isAligned) {
-    feedback = "Align your shoulders";
-  } else if (!hipsAligned) {
-    feedback = "Align your hips";
+  if (bodyPartFeedback.length > 0) {
+    feedback = `Adjust ${bodyPartFeedback.length} area${bodyPartFeedback.length > 1 ? 's' : ''}`;
   }
   
   return {
     isCorrect,
     confidence,
-    feedback
+    feedback,
+    bodyPartFeedback
   };
 };
 
@@ -125,7 +196,7 @@ export const detectPoseFromVideo = async (
         }
         
         canvasCtx.restore();
-        return results.landmarks;
+        return { landmarks: results.landmarks, worldLandmarks: results.worldLandmarks };
       }
       
       canvasCtx.restore();
