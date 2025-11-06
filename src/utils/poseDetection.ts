@@ -87,26 +87,29 @@ export const detectPoseFromVideo = async (
   
   if (!poseLandmarker) return null;
 
-  // Check if video is ready and playing
-  if (video.readyState < 2 || video.paused) {
-    return null;
-  }
+  const canvasCtx = canvas.getContext('2d');
+  if (!canvasCtx) return null;
 
-  const currentTime = performance.now();
-  
+  // ALWAYS draw the video frame first, regardless of readyState
   try {
-    const results = poseLandmarker.detectForVideo(video, currentTime);
-    
-    // Always draw video frame and landmarks on canvas
-    const canvasCtx = canvas.getContext('2d');
-    if (canvasCtx) {
+    if (video.readyState >= 2 && !video.paused) {
+      // Set canvas dimensions to match video
+      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+      }
+
       canvasCtx.save();
       canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // ALWAYS draw the video frame to the canvas first
+      // Draw the video frame
       canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
       
-      // Then draw the pose landmarks on top if available
+      // Try pose detection
+      const currentTime = performance.now();
+      const results = poseLandmarker.detectForVideo(video, currentTime);
+      
+      // Draw pose landmarks if available
       if (results.landmarks && results.landmarks.length > 0) {
         const drawingUtils = new DrawingUtils(canvasCtx);
         for (const landmark of results.landmarks) {
@@ -120,19 +123,16 @@ export const detectPoseFromVideo = async (
             lineWidth: 3
           });
         }
+        
+        canvasCtx.restore();
+        return results.landmarks;
       }
+      
       canvasCtx.restore();
     }
-    
-    return results.landmarks;
   } catch (error) {
     console.error('Error detecting pose:', error);
-    // Still try to draw the video even if detection fails
-    const canvasCtx = canvas.getContext('2d');
-    if (canvasCtx && video.readyState >= 2) {
-      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-      canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    }
-    return null;
   }
+  
+  return null;
 };
