@@ -191,25 +191,12 @@ export default function YogaSession() {
   };
 
   const detectPose = async () => {
-    if (!videoRef.current || !canvasRef.current || !isDetecting) {
-      console.log('DetectPose early return:', { 
-        hasVideo: !!videoRef.current, 
-        hasCanvas: !!canvasRef.current, 
-        isDetecting 
-      });
+    if (!videoRef.current || !canvasRef.current) {
       return;
     }
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-
-    console.log('Video state:', {
-      readyState: video.readyState,
-      paused: video.paused,
-      videoWidth: video.videoWidth,
-      videoHeight: video.videoHeight,
-      srcObject: !!video.srcObject
-    });
 
     try {
       const landmarks = await detectPoseFromVideo(video, canvas);
