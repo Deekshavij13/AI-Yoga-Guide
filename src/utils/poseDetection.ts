@@ -59,11 +59,11 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     };
   }
 
-  // Calculate shoulder alignment
+  // Calculate shoulder alignment - MORE LENIENT
   const shoulderDiff = Math.abs(leftShoulder.y - rightShoulder.y);
-  const isAligned = shoulderDiff < 0.1;
+  const isAligned = shoulderDiff < 0.15; // Increased from 0.1
   
-  if (!isAligned) {
+  if (!isAligned && shoulderDiff > 0.2) { // Only show feedback if really misaligned
     const shoulderMidpoint = {
       x: (leftShoulder.x + rightShoulder.x) / 2,
       y: (leftShoulder.y + rightShoulder.y) / 2
@@ -72,17 +72,17 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
       part: 'shoulders',
       message: leftShoulder.y > rightShoulder.y ? 'Raise left shoulder' : 'Raise right shoulder',
       position: shoulderMidpoint,
-      severity: 'error'
+      severity: 'warning'
     });
   }
   
-  // Check hip alignment (landmarks 23 and 24)
+  // Check hip alignment - MORE LENIENT
   const leftHip = pose[23];
   const rightHip = pose[24];
   const hipDiff = Math.abs(leftHip.y - rightHip.y);
-  const hipsAligned = hipDiff < 0.1;
+  const hipsAligned = hipDiff < 0.15; // Increased from 0.1
   
-  if (!hipsAligned) {
+  if (!hipsAligned && hipDiff > 0.2) { // Only show feedback if really misaligned
     const hipMidpoint = {
       x: (leftHip.x + rightHip.x) / 2,
       y: (leftHip.y + rightHip.y) / 2
@@ -95,7 +95,7 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     });
   }
   
-  // Check arm extension (landmarks 11, 13, 15 for left arm)
+  // Check arm extension - LESS STRICT
   const leftElbow = pose[13];
   const leftWrist = pose[15];
   if (leftShoulder && leftElbow && leftWrist) {
@@ -103,7 +103,7 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     const shoulderElbowAngle = Math.atan2(leftElbow.y - leftShoulder.y, leftElbow.x - leftShoulder.x);
     const totalAngle = Math.abs(armAngle - shoulderElbowAngle);
     
-    if (totalAngle < 2.5) { // Less than ~143 degrees
+    if (totalAngle < 2.0) { // More lenient - was 2.5
       bodyPartFeedback.push({
         part: 'left_arm',
         message: 'Extend left arm more',
@@ -113,7 +113,7 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     }
   }
   
-  // Check right arm extension
+  // Check right arm extension - LESS STRICT
   const rightElbow = pose[14];
   const rightWrist = pose[16];
   if (rightShoulder && rightElbow && rightWrist) {
@@ -121,7 +121,7 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     const shoulderElbowAngle = Math.atan2(rightElbow.y - rightShoulder.y, rightElbow.x - rightShoulder.x);
     const totalAngle = Math.abs(armAngle - shoulderElbowAngle);
     
-    if (totalAngle < 2.5) {
+    if (totalAngle < 2.0) { // More lenient
       bodyPartFeedback.push({
         part: 'right_arm',
         message: 'Extend right arm more',
@@ -131,9 +131,11 @@ export const analyzePose = (landmarks: any[]): PoseAnalysis => {
     }
   }
   
-  const confidence = (isAligned && hipsAligned && bodyPartFeedback.length === 0) ? 0.85 : 
-                     (isAligned || hipsAligned) ? 0.5 : 0.3;
-  const isCorrect = confidence > 0.6;
+  // MUCH MORE GENEROUS SCORING
+  const confidence = (isAligned && hipsAligned && bodyPartFeedback.length === 0) ? 0.95 : 
+                     (isAligned && hipsAligned) ? 0.85 :
+                     (isAligned || hipsAligned) ? 0.70 : 0.55;
+  const isCorrect = confidence > 0.5; // Lowered from 0.6
   
   let feedback = "Great posture!";
   if (bodyPartFeedback.length > 0) {
@@ -185,13 +187,13 @@ export const detectPoseFromVideo = async (
         const drawingUtils = new DrawingUtils(canvasCtx);
         for (const landmark of results.landmarks) {
           drawingUtils.drawLandmarks(landmark, {
-            radius: 4,
-            fillColor: '#2DD4BF',
-            lineWidth: 2
+            radius: 3,
+            fillColor: 'rgba(34, 197, 94, 0.7)',
+            lineWidth: 1
           });
           drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS, {
-            color: '#A78BFA',
-            lineWidth: 3
+            color: 'rgba(34, 197, 94, 0.4)',
+            lineWidth: 2
           });
         }
         
